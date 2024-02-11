@@ -1,19 +1,38 @@
-import { test } from "@playwright/test";
-import { LoginPage } from "../page-object/LoginPage";
-import { HomePage } from "../page-object/HomePage";
+const { test, expect } = require('@playwright/test');
 
-test.describe("e2e Test for hillel",()=>{
+const loginData = [
+    {
+        email: "studigradilyagmail.com",
+        pass: "1w24r231jr",
+        result: "Invalid email address",
+        locator: `//li[@class="validation-messages__item ng-star-inserted"]`
+    },
+    {
+        email: "studigradilya@gmail.com",
+        pass: "1w24r231jr",
+        result: "Incorrect email or password",
+        locator: `//p[@class="page-login__actions-validation ng-star-inserted"]`
+    }
+];
 
-    test.beforeEach(async ({page,isMobile})=>{
-        let loginPage = new LoginPage(page)
-        await loginPage.visit("https://lms.ithillel.ua/auth")
-        await loginPage.login()
-    })
-    
-    test("Check first lesson",async ({page})=>{
-        let homePage = new HomePage(page)
-        await homePage.checkFirstLesson()
-    })
+test('Login Test', async ({ page }) => {
+    // Проходимо по кожному елементу з набору тестових даних
+    for (const data of loginData) {
+        // Відкриваємо сторінку логіну
+        await page.goto('https://lms.ithillel.ua/login');
 
-})
+        // Вводимо email та пароль
+        await page.fill('input[type="email"]', data.email);
+        await page.fill('input[type="password"]', data.pass);
 
+        // Клацнемо на кнопку увійти
+        await page.click('button[type="submit"]');
+
+        // Очікуємо відображення результату
+        await page.waitForSelector(data.locator);
+
+        // Перевіряємо, чи відображається очікуваний текст
+        const text = await page.textContent(data.locator);
+        expect(text).toContain(data.result);
+    }
+});
