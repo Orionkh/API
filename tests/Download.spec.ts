@@ -7,7 +7,7 @@ test('File Download, Read and Verify', async ({ page }) => {
     const csvDownloadLink = await page.$('a[href="download/BrowserStack - List of devices to test on.csv"]');
     expect(csvDownloadLink).not.toBeNull();
     const [download] = await Promise.all([
-        page.waitForEvent('download'), // Очікуємо на завантаження файлу
+        page.waitForEvent('download'),
         csvDownloadLink?.click(), 
     ]);
   
